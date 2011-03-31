@@ -1,0 +1,55 @@
+#!/bin/sh
+# RedHat startup script for a supervisor instance
+#
+# Chris McDonough (chrism@plope.com)
+# http://lists.supervisord.org/pipermail/supervisor-users/2007-September/000093.html
+#
+# chkconfig: 2345 80 20
+# description: supervisor-chris
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+supervisorctl="/home/chrism/bin/supervisorctl"
+supervisord="/home/chrism/bin/supervisord"
+name="supervisor-chris"
+
+[ -f $supervisord ] || exit 1
+[ -f $supervisorctl ] || exit 1
+
+RETVAL=0
+
+start() {
+     echo -n "Starting $name: "
+     $supervisord
+     RETVAL=$?
+     [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$name
+     echo
+     return $RETVAL
+}
+
+stop() {
+     echo -n "Stopping $name: "
+    $supervisorctl shutdown
+     RETVAL=$?
+     [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$name
+     echo
+     return $RETVAL
+}
+
+case "$1" in
+         start)
+             start
+             ;;
+
+         stop)
+             stop
+             ;;
+
+         restart)
+             stop
+             start
+             ;;
+esac
+
+exit $REVAL
