@@ -1,0 +1,55 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+#
+# Author: Agustin Mendez (matagus@gmail.com)
+#
+
+opts="${opts} "
+pidfile="/var/run/supervisord/supervisord.pid"
+
+fromcron="0"
+# this next comment is important, don't remove it - it has to be somewhere in
+# the init script to kill off a warning that doesn't apply to us
+# svc_start svc_stop
+checkconfig() {
+    if [[ -f "${pidfile}" ]] ; then
+        kill -0 $(< ${pidfile}) 2>/dev/null
+        if [[ $? -eq 0 ]] ; then
+            # the process exist, we have a problem
+            if  [[ $fromcron -eq "0" ]] ; then
+                eerror "\"${pidfile}\" is still present and the process is running."
+                eerror "Please stop it \"kill $(< ${pidfile})\" maybe ?"
+            fi
+            return 1
+        else
+            rm -f "${pidfile}"
+        fi
+    fi
+    return 0
+}
+
+start() {
+        checkconfig || return 1
+        ebegin "Starting Supervisor Daemon"
+        /usr/bin/supervisord
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping Supervisor Daemon"
+    local PID timeout=${STOPTIMEOUT:-"120"}
+    PID=$(< "${pidfile}" )
+    start-stop-daemon --quiet --stop --pidfile "${pidfile}" &
+    while [[ -n "$PID" ]] \
+        && $( ps -Ao pid | grep -q "^ *$PID$" ) \
+        && [[ "${timeout}" -ge 1 ]]
+    do
+        timeout=$(($timeout - 1))
+        sleep 1
+    done
+    [[ "${timeout}" -lt 1 ]] && retstatus=1
+    sleep 1
+    [[ "$retstatus" -eq 0 ]] && rm -f "$pidfile"
+    eend ${retstatus}
+}
