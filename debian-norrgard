@@ -23,6 +23,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Run a set of applications as daemons."
 NAME=supervisord
 DAEMON=/usr/bin/$NAME   # Supervisord is installed in /usr/bin by default, but /usr/sbin would make more sense.
+SUPERVISORCTL=/usr/bin/supervisorctl
 PIDFILE=/var/run/$NAME.pid
 DAEMON_ARGS="--pidfile ${PIDFILE}"
 SCRIPTNAME=/etc/init.d/$NAME
@@ -72,7 +73,7 @@ do_stop()
         [ -e $PIDFILE ] || return 1
 
 	# Stop all processes under supervisord control.
-	supervisorctl stop all
+	$SUPERVISORCTL stop all
 
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
 	RETVAL="$?"
