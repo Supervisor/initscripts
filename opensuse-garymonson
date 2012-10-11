@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# /etc/init.d/supervisord
+# Handles starting and stopping supervisord.
+#
+# Tested on OpenSUSE 12.1.
+#
+# Author: Gary Monson gary.monson@gmail.com
+
+DAEMON=/usr/local/bin/supervisord
+BASE=`basename $DAEMON`
+PIDFILE=/var/run/$BASE.pid
+CONFIGFILE=/etc/$BASE.conf
+LOGFILE=/var/log/$BASE/$BASE.log
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+start() {
+    echo -n "Starting supervisord: "
+    if [ -f $PIDFILE ]; then
+        PID=`cat $PIDFILE`
+        echo supervisord already running: $PID
+        exit 2;
+    else
+        mkdir -p `dirname $LOGFILE`
+        $DAEMON --pidfile $PIDFILE --configuration $CONFIGFILE --logfile $LOGFILE
+        RETVAL=$?
+        return $RETVAL
+    fi
+}
+
+stop() {
+    echo "Shutting down supervisord:"
+    killproc -p $PIDFILE supervisord
+    return 0
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage:  {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit $?
