@@ -36,6 +36,23 @@ stop() {
     return 0
 }
 
+status() {
+    if [ -f $PIDFILE ]; then
+        PID=`cat $PIDFILE`
+        ps -p $PID >/dev/null 2>&1
+        if [ "$?" = 0 ]; then
+            echo "supervisord running"
+            exit 0
+        else
+            echo "pidfile exists ($PID), but supervisord not running"
+            exit 2
+        fi
+    else
+        echo "supervisord not running"
+        exit 1
+    fi
+}
+
 case "$1" in
     start)
         start
@@ -46,6 +63,9 @@ case "$1" in
     restart)
         stop
         start
+        ;;
+    status)
+        status
         ;;
     *)
         echo "Usage:  {start|stop|restart}"
