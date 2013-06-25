@@ -30,6 +30,7 @@ DESC="supervisor - Run a set of applications as daemons"
 
 CONFIGFILE=/etc/supervisord.conf      # the supervisord config file
 SUPERVISORCTL=/usr/bin/supervisorctl  # used for reload command(s)
+#SUPERVISORCTL=/usr/local/bin/supervisorctl  # again: official deb version
 
 if test ! -x $DAEMON; then
     echo "ERROR: Not executable: $DAEMON"
