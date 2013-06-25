@@ -98,7 +98,7 @@ running () {
 
 normal_start () {
       start-stop-daemon $STARTSTOP_ARGS --start \
-          --exec "$DAEMON" -- "$DAEMON_ARGS" "$DAEMON_OPTS"
+          --exec "$DAEMON" -- "$DAEMON_ARGS" $DAEMON_OPTS
       if [ ! -f "$PIDFILE" ]; then
           sleep 1  # grace time to create PIDFILE
       fi
@@ -144,7 +144,7 @@ ctl_status () {
 
 case "$1" in
     start)
-        echo -n "Starting $DESC: "
+        echo -n "Starting $NAME: "
         normal_start
         if running; then
             echo "$NAME."
@@ -153,7 +153,7 @@ case "$1" in
         fi
         ;;
     stop)
-        echo -n "Stopping $DESC: "
+        echo -n "Stopping $NAME: "
         if normal_stop; then
             echo "$NAME."
         else
@@ -165,7 +165,7 @@ case "$1" in
         "$0" stop && "$0" start
         ;;
     force-stop)
-        echo -n "Forcefully stopping $DESC: "
+        echo -n "Forcefully stopping $NAME: "
         force_stop
         if running; then
             echo "$NAME."
@@ -181,7 +181,7 @@ case "$1" in
         #    If the daemon responds to changes in its config file
         #    directly anyway, make this a do-nothing entry.
         #
-        echo "Reloading $DESC: "
+        echo "Reloading $NAME: "
         if ctl_reload; then
             echo "$NAME."
         else
