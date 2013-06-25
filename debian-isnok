@@ -28,9 +28,9 @@ DAEMON=/usr/local/bin/supervisord  # Python package index (pypi) version (3.0b1)
 NAME=supervisord
 DESC="supervisor - Run a set of applications as daemons"
 
-CONFIGFILE=/etc/supervisord.conf      # the supervisord config file
-SUPERVISORCTL=/usr/bin/supervisorctl  # used for reload command(s)
-#SUPERVISORCTL=/usr/local/bin/supervisorctl  # again: official deb version
+CONFIGFILE=/etc/supervisord.conf            # the supervisord config file
+SUPERVISORCTL=/usr/local/bin/supervisorctl  # used for reload command(s)
+#SUPERVISORCTL=/usr/bin/supervisorctl       # again: official deb version
 
 if test ! -x $DAEMON; then
     echo "ERROR: Not executable: $DAEMON"
@@ -42,7 +42,7 @@ PIDFILE=/var/run/$NAME.pid
 DODTIME=5                   # Time to wait for the server to die, in seconds
                             # If this value is set too low you might not
                             # let some servers to die gracefully and
-                            # 'restart' will not work
+                            # 'restart' will not work.
 
 # fix some args for certain commands
 DAEMON_ARGS="-c $CONFIGFILE"
