@@ -45,8 +45,8 @@ DODTIME=5                   # Time to wait for the server to die, in seconds
                             # 'restart' will not work.
 
 # fix some args for certain commands
-DAEMON_ARGS="-c $CONFIGFILE"
-CTL_ARGS="-c $CONFIGFILE"
+DAEMON_ARGS="-c$CONFIGFILE"
+CTL_ARGS="-c$CONFIGFILE"
 STARTSTOP_ARGS="--quiet --pidfile $PIDFILE --exec $DAEMON"
 
 # Include supervisor defaults if available
@@ -90,9 +90,9 @@ running () {
     # Now, obtain the pid and check it's /proc cmdline:
     pid="$(cat $PIDFILE)"
     if running_pid "$pid" "$DAEMON"; then
-        return 1
-    else
         return 0
+    else
+        return 1
     fi
 }
 
@@ -105,7 +105,8 @@ normal_start () {
 }
 
 normal_stop () {
-    start-stop-daemon $STARTSTOP_ARGS --stop --oknodo
+    #start-stop-daemon $STARTSTOP_ARGS --stop --oknodo
+    "$SUPERVISORCTL" $CTL_ARGS shutdown
 }
 
 force_stop () {
@@ -203,7 +204,7 @@ case "$1" in
             echo "running:"
             ctl_status
         else
-            echo " not running."
+            echo "not running."
             exit 1
         fi
         ;;
