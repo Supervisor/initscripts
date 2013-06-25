@@ -1,14 +1,13 @@
 #! /bin/sh
 #
-# skeleton      example file to build /etc/init.d/ scripts.
-#               This file should be used to construct scripts for /etc/init.d.
+# supervisor    built from skeleton /etc/init.d/ script.
 #
-#               Written by Miquel van Smoorenburg <miquels@cistron.nl>.
+#               skeleton by Miquel van Smoorenburg <miquels@cistron.nl>.
 #               Modified for Debian by Ian Murdock <imurdock@gnu.ai.mit.edu>.
 #               Further changes by Javier Fernandez-Sanguino <jfs@debian.org>.
 #               More changes by Konstantin Martini <isnok@tuxcode.org>.
 #
-# Version:      @(#)skeleton  1.9  26-Feb-2001  miquels@cistron.nl
+# Version:      @(#)supervisor  0.8  25-Jun-2013  isnok@tuxcode.org
 #
 ### BEGIN INIT INFO
 # Provides:          supervisor
@@ -16,7 +15,7 @@
 # Required-Stop:     $remote_fs $network $named
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start/stop supervisor
+# Short-Description: Start/stop supervisord
 # Description:       Start/stop supervisor daemon and its configured
 #                    subprocesses.
 ### END INIT INFO
@@ -26,13 +25,13 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #DAEMON=/usr/bin/supervisord       # Debian package version (presently 3.0a8-1)
 DAEMON=/usr/local/bin/supervisord  # Python package index (pypi) version (3.0b1)
 NAME=supervisord
-DESC="supervisor - Run a set of applications as daemons"
+DESC="a python process supervisor"
 
 CONFIGFILE=/etc/supervisord.conf            # the supervisord config file
 SUPERVISORCTL=/usr/local/bin/supervisorctl  # used for reload command(s)
 #SUPERVISORCTL=/usr/bin/supervisorctl       # again: official deb version
 
-if test ! -x $DAEMON; then
+if [ ! -x $DAEMON ]; then
     echo "ERROR: Not executable: $DAEMON"
     exit 0
 fi
@@ -145,7 +144,7 @@ ctl_status () {
 
 case "$1" in
     start)
-        echo -n "Starting $NAME: "
+        echo -n "Starting $DESC: "
         normal_start
         if running; then
             echo "$NAME."
@@ -154,7 +153,7 @@ case "$1" in
         fi
         ;;
     stop)
-        echo -n "Stopping $NAME: "
+        echo -n "Stopping $DESC: "
         if normal_stop; then
             echo "$NAME."
         else
@@ -162,11 +161,11 @@ case "$1" in
         fi
         ;;
     restart)
-        echo "Restart $DESC."
+        echo "Restarting $DESC..."
         "$0" stop && "$0" start
         ;;
     force-stop)
-        echo -n "Forcefully stopping $NAME: "
+        echo -n "Forcefully stopping $DESC: "
         force_stop
         if running; then
             echo "$NAME."
@@ -182,7 +181,7 @@ case "$1" in
         #    If the daemon responds to changes in its config file
         #    directly anyway, make this a do-nothing entry.
         #
-        echo "Reloading $NAME: "
+        echo "Reloading $DESC: "
         if ctl_reload; then
             echo "$NAME."
         else
