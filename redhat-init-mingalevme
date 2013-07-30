@@ -14,6 +14,7 @@
 #
 # description:  supervisor is a process control utility.  It has a web based
 #               xmlrpc interface as well as a few other nifty features.
+#               Script was originally written by Jason Koppe <jkoppe@indeed.com>.
 #
 
 # source function library
