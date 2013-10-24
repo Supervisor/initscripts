@@ -26,7 +26,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/local/bin/supervisord
 NAME=supervisord
 DESC=supervisor
-DAEMON_OPTS="-c /etc/supervisord/supervisord.conf"
+DAEMON_OPTS=""
 
 test -x $DAEMON || exit 0
 
