@@ -24,9 +24,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=supervised                             # <--- hook your service here
 DESC="a supervised service"
 
-SUPERVISORCTL=/usr/local/bin/supervisorctl  # used to control supervisord
-#SUPERVISORCTL=/usr/bin/supervisorctl       # (official debian version)
-CONFIGFILE=/etc/supervisord.conf            # the supervisord config file
+SUPERVISORCTL=/usr/bin/supervisorctl        # from debian package
+#SUPERVISORCTL=/usr/local/bin/supervisorctl # if installed via pip
+CONFIGFILE=/etc/supervisor/supervisord.conf # the supervisord config file
 CTL_ARGS="-c$CONFIGFILE"
 
 if [ ! -x "$SUPERVISORCTL" ]; then
