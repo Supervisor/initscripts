@@ -27,8 +27,9 @@
 . /lib/lsb/init-functions
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/bin/supervisord
+DAEMON=/usr/local/bin/supervisord
 NAME=supervisord
+LABEL=Supervisor
 DESC=supervisor
 
 test -x $DAEMON || exit 0
@@ -153,9 +154,9 @@ case "$1" in
   status)
     echo -n "$LABEL is "
     if running ;  then
-        echo "running"
+        echo "running (pid $pid)."
     else
-        echo " not running."
+        echo "NOT running."
         exit 1
     fi
     ;;
