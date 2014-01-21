@@ -31,7 +31,12 @@ DAEMON=/usr/bin/supervisord
 NAME=supervisord
 DESC=supervisor
 
-test -x $DAEMON || exit 0
+if [ ! -f $DAEMON ];then
+ echo "$DAEMON not exits,do nothing :(  please verify $NAME location( using 'which $NAME'). ";
+ which $NAME;
+ exit 0;
+fi
+
 
 LOGDIR=/var/log/supervisor
 PIDFILE=/var/run/$NAME.pid
