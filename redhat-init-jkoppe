@@ -94,7 +94,7 @@ case "$1" in
         RETVAL=$?
         ;;
     status)
-        /usr/bin/supervisorctl status
+        /usr/bin/supervisorctl $OPTIONS status
         RETVAL=$?
         ;;
     *)
