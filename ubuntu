@@ -27,7 +27,7 @@
 . /lib/lsb/init-functions
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/bin/supervisord
+DAEMON=/usr/local/bin/supervisord
 NAME=supervisord
 DESC=supervisor
 
