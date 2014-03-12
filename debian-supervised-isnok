@@ -25,11 +25,11 @@ NAME=supervised                             # <--- hook your service here
 DESC="a supervised service"
 
 SUPERVISORCTL=/usr/bin/supervisorctl        # from debian package
-#SUPERVISORCTL=/usr/local/bin/supervisorctl # if installed via pip
+#SUPERVISORCTL=/usr/local/bin/supervisorctl # if installed via pip from pypi
 CONFIGFILE=/etc/supervisor/supervisord.conf # the supervisord config file
 CTL_ARGS="-c$CONFIGFILE"
 
-if [ ! -x "$SUPERVISORCTL" ]; then
+if command -v "$SUPERVISORCTL" >/dev/null 2>&1; then
     echo "ERROR: Not executable: $SUPERVISORCTL"
     exit 0
 fi
@@ -42,7 +42,7 @@ fi
 set -e
 
 supctl () {
-    "$SUPERVISORCTL" $CTL_ARGS "$@"
+    "$SUPERVISORCTL" $CTL_ARGS $DAEMON_OPTS "$@"
 }
 
 running () {

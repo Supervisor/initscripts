@@ -22,16 +22,16 @@
 
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-#DAEMON=/usr/bin/supervisord       # Debian package version (presently 3.0a8-1)
-DAEMON=/usr/local/bin/supervisord  # Python package index (pypi) version (3.0b1)
+DAEMON=/usr/bin/supervisord         # Debian package version (presently 3.0a8-1)
+#DAEMON=/usr/local/bin/supervisord  # Python package index (pypi) version (3.0b1)
 NAME=supervisord
 DESC="a python process supervisor"
 
 CONFIGFILE=/etc/supervisord.conf            # the supervisord config file
-SUPERVISORCTL=/usr/local/bin/supervisorctl  # used for reload command(s)
-#SUPERVISORCTL=/usr/bin/supervisorctl       # again: official deb version
+SUPERVISORCTL=/usr/bin/supervisorctl        # used for reload command(s)
+#SUPERVISORCTL=/usr/local/bin/supervisorctl # for use with pypi version
 
-if [ ! -x $DAEMON ]; then
+if command -v $DAEMON >/dev/null 2>&1; then
     echo "ERROR: Not executable: $DAEMON"
     exit 0
 fi
@@ -97,7 +97,7 @@ running () {
 
 normal_start () {
       start-stop-daemon $STARTSTOP_ARGS --start \
-          --exec "$DAEMON" -- "$DAEMON_ARGS" $DAEMON_OPTS
+          --exec "$DAEMON" -- $DAEMON_ARGS $DAEMON_OPTS
       if [ ! -f "$PIDFILE" ]; then
           sleep 1  # grace time to create PIDFILE
       fi
