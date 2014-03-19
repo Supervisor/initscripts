@@ -29,7 +29,7 @@ SUPERVISORCTL=/usr/bin/supervisorctl        # from debian package
 CONFIGFILE=/etc/supervisor/supervisord.conf # the supervisord config file
 CTL_ARGS="-c$CONFIGFILE"
 
-if command -v "$SUPERVISORCTL" >/dev/null 2>&1; then
+if [ ! -x "$SUPERVISORCTL" ]; then
     echo "ERROR: Not executable: $SUPERVISORCTL"
     exit 0
 fi
