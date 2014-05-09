@@ -9,6 +9,8 @@
 #               Mikhail Mingalev <mingalevme@gmail.com> Merged
 #                   redhat-init-jkoppe and redhat-sysconfig-jkoppe, and
 #                   made the script "simple customizable".
+#               Brendan Maguire <maguire.brendan@gmail.com> Added OPTIONS to
+#                   SUPERVISORCTL status call
 #
 # chkconfig:    345 83 04
 #
@@ -136,7 +138,7 @@ case "$1" in
         RETVAL=$?
         ;;
     status)
-        $SUPERVISORCTL status
+        $SUPERVISORCTL $OPTIONS status
         if running ; then
             RETVAL=0
         else
