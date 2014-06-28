@@ -10,6 +10,7 @@
 #		Modified for Debian
 #		by Ian Murdock <imurdock@gnu.ai.mit.edu>.
 #               Further changes by Javier Fernandez-Sanguino <jfs@debian.org>
+#               Modified by sbilly <superli.1980@gmail.com> Added supervisorctl to status
 #
 # Version:	@(#)skeleton  1.9  26-Feb-2001  miquels@cistron.nl
 #
@@ -28,6 +29,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/supervisord
+SUPERVISORCTL=/usr/bin/supervisorctl
 NAME=supervisord
 DESC=supervisor
 
@@ -106,7 +108,7 @@ case "$1" in
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE 
+	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
 	echo "$NAME."
 	;;
   force-stop)
@@ -158,6 +160,7 @@ case "$1" in
         echo " not running."
         exit 1
     fi
+    $SUPERVISORCTL $DAEMON_OPTS status
     ;;
   *)
 	N=/etc/init.d/$NAME
