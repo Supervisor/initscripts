@@ -1,0 +1,105 @@
+#!/bin/sh
+# /etc/rc.d/rc.supervisord
+#
+# AUTHOR: Josh Jaques <jjaques@gmail.com>
+#
+# Start/stop/restart supervisor in slackware.
+# Specfically tested in v13.37
+#
+# To make Supervisor start automatically at boot, make this
+# file executable:  chmod 755 /etc/rc.d/rc.supervisord
+
+# Time to wait between stop/start on a restart
+SHUTDOWN_TIME=5
+
+# Time to wait after a start before reporting success/fail
+STARTUP_TIME=1
+
+# Location of the pid file
+PIDFILE=/var/run/supervisord.pid
+
+# Config of supervisor
+CONFIG=/etc/supervisord.conf
+
+# Daemon to start
+DAEMON=supervisord
+
+supervisord_start()
+{
+    $DAEMON -c $CONFIG -j $PIDFILE
+}
+
+
+supervisord_status()
+{
+    if [ -f $PIDFILE ]
+    then
+        pgrep $DAEMON | grep -f $PIDFILE > /dev/null 2>/dev/null
+        if [ $? -eq 0 ]
+        then
+            return 0
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
+
+supervisord_stop()
+{
+    kill $(cat $PIDFILE)
+}
+
+case "$1" in
+  'start')
+      echo -n "Starting..."
+      supervisord_start
+      sleep $STARTUP_TIME
+      supervisord_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+  ;;
+
+  'status')
+      supervisord_status && echo "RUNNING [PID: $(cat $PIDFILE)]" || echo "STOPPED"
+  ;;
+
+
+  'stop')
+      supervisord_status && {
+        echo -n "Stopping $(cat $PIDFILE)..."
+        supervisord_stop
+        sleep $SHUTDOWN_TIME
+        supervisord_status && echo "Failed" || echo "Success"
+      } || {
+        echo "Not Running..."
+        exit 1
+    }
+  ;;
+
+  'restart')
+      supervisord_status && {
+        echo -n "Stopping $(cat $PIDFILE)..."
+        supervisord_stop
+        sleep $SHUTDOWN_TIME
+        supervisord_status && {
+            echo "Failed"
+            exit 1 
+        } || {
+            echo "Success"
+        }
+      } || {
+        echo "Not Running..."
+        exit 1
+      }
+      echo -n "Starting..."
+      supervisord_start
+      sleep $STARTUP_TIME
+      supervisord_status && echo "DONE [PID: $(cat $PIDFILE)]" || echo "ERROR"
+  ;;
+
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+  ;;
+esac
+
