@@ -19,9 +19,6 @@
 #               Script was originally written by Jason Koppe <jkoppe@indeed.com>.
 #
 
-# Treat unset variables as error
-set -o nounset
-
 # source function library
 . /etc/rc.d/init.d/functions
 
