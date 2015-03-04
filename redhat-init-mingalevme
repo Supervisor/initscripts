@@ -76,7 +76,7 @@ start() {
 	fi
 
 	# start supervisord with options from sysconfig (stuff like -c)
-        $SUPERVISORD $OPTIONS
+        $SUPERVISORD $OPTIONS  -j $PIDFILE
 	
 	# show initial startup status
 	$SUPERVISORCTL $OPTIONS status
