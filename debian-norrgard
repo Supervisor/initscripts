@@ -25,7 +25,7 @@ NAME=supervisord
 DAEMON=/usr/bin/$NAME   # Supervisord is installed in /usr/bin by default, but /usr/sbin would make more sense.
 SUPERVISORCTL=/usr/bin/supervisorctl
 PIDFILE=/var/run/$NAME.pid
-DAEMON_ARGS="--pidfile ${PIDFILE}"
+DAEMON_ARGS="" # Add you config location here. Eg: "-c /home/deploy/supervisor.conf"
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the package is not installed
@@ -52,7 +52,7 @@ do_start()
 	#   2 if daemon could not be started
         [ -e $PIDFILE ] && return 1
 
-	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- \
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --exec $DAEMON -- \
 		$DAEMON_ARGS \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
