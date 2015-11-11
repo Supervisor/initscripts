@@ -38,7 +38,7 @@ fi
 
 # Path to the supervisorctl script, server binary,
 # and short-form for messages.
-supervisorctl=/usr/bin/supervisorctl
+supervisorctl=${SUPERVISORCTL-/usr/bin/supervisorctl}
 supervisord=${SUPERVISORD-/usr/bin/supervisord}
 prog=supervisord
 pidfile=${PIDFILE-/var/run/supervisord.pid}
