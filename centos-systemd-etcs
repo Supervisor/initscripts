@@ -4,6 +4,7 @@
 Description=Supervisor daemon
 
 [Service]
+Type=forking
 ExecStart=/usr/bin/supervisord
 ExecStop=/usr/bin/supervisorctl $OPTIONS shutdown
 ExecReload=/usr/bin/supervisorctl $OPTIONS reload
