@@ -1,4 +1,4 @@
-# supervisord service for sysstemd (CentOS 7.0+)
+# supervisord service for systemd (CentOS 7.0+)
 # by ET-CS (https://github.com/ET-CS)
 [Unit]
 Description=Supervisor daemon
