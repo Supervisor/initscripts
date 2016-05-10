@@ -6,6 +6,10 @@
 #               Jason Koppe <jkoppe@indeed.com> adjusted to read sysconfig,
 #                   use supervisord tools to start/stop, conditionally wait
 #                   for child processes to shutdown, and startup later
+#               Cameron Kerr <cameron.kerr.nz@gmail.com> adjusted 'status'
+#                   to return an LSB-compliant return code so things like
+#                   Ansible will be able to idempotently ensure service is
+#                   up or down as desired.
 #
 # chkconfig:    345 83 04
 #
@@ -98,6 +102,11 @@ case "$1" in
         ;;
     status)
         /usr/bin/supervisorctl $OPTIONS status
+        status -p $PIDFILE supervisord
+        # The 'status' option should return one of the LSB-defined return-codes,
+        # in particular, return-code 3 should mean that the service is not
+        # currently running. This is particularly important for Ansible's 'service'
+        # module, as without this behaviour it won't know if a service is up or down.
         RETVAL=$?
         ;;
     *)
