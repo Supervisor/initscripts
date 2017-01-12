@@ -1,0 +1,135 @@
+#! /bin/sh
+#
+# supervised    built from supervisor /etc/init.d/ script.
+#
+#               skeleton by Miquel van Smoorenburg <miquels@cistron.nl>.
+#               Modified for Debian by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#               Further changes by Javier Fernandez-Sanguino <jfs@debian.org>.
+#               More changes by Konstantin Martini <isnok@tuxcode.org>.
+#
+# Version:      @(#)supervised  0.8  25-Jun-2013  isnok@tuxcode.org
+#
+### BEGIN INIT INFO
+# Provides:          supervised
+# Required-Start:    $supervisor
+# Required-Stop:     $supervisor
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop (python-)supervised service
+# Description:       Start/stop (python-)supervised service
+### END INIT INFO
+
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=supervised                             # <--- hook your service here
+DESC="a supervised service"
+
+SUPERVISORCTL=/usr/bin/supervisorctl        # from debian package
+#SUPERVISORCTL=/usr/local/bin/supervisorctl # if installed via pip from pypi
+CONFIGFILE=/etc/supervisor/supervisord.conf # the supervisord config file
+CTL_ARGS="-c$CONFIGFILE"
+
+if [ ! -x "$SUPERVISORCTL" ]; then
+    echo "ERROR: Not executable: $SUPERVISORCTL"
+    exit 0
+fi
+
+# Include supervisor defaults if available
+#if [ -r /etc/default/supervisor ]; then
+#    . /etc/default/supervisor
+#fi
+
+set -e
+
+supctl () {
+    "$SUPERVISORCTL" $CTL_ARGS $DAEMON_OPTS "$@"
+}
+
+running () {
+    # Check if NAME is running by examining status output.
+    supctl status "$NAME" | grep -q " RUNNING "
+}
+
+#force_stop () {
+#    # Forcefully stop a running DAEMON.
+#    if running; then
+#        kill -15 "$pid"
+#        dod_sleep
+#        # Check again, try harder if needed.
+#        if running; then
+#            kill -9 "$pid"
+#            dod_sleep
+#            if running; then
+#                echo "Unable to kill running $NAME process (pid=$pid)!"
+#                exit 1
+#            fi
+#        fi
+#    fi
+#    rm -f "$PIDFILE"
+#    return 0
+#}
+
+ctl_status () {
+    # show status of supervised process.
+    supctl status "$NAME"
+}
+
+normal_start () {
+    supctl start "$NAME"
+}
+
+normal_stop () {
+    supctl stop "$NAME"
+}
+
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        normal_start
+        if running; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        if normal_stop; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    restart)
+        echo "Restarting $DESC..."
+        "$0" stop && "$0" start
+        ;;
+#    force-stop)
+#        echo -n "Forcefully stopping $DESC: "
+#        force_stop
+#        if running; then
+#            echo "$NAME."
+#        else
+#            echo "ERROR."
+#        fi
+#        ;;
+    status)
+        echo -n "$NAME is "
+        if running; then
+            echo "running:"
+            ctl_status
+        else
+            echo "not running."
+            exit 1
+        fi
+        ;;
+    *)
+        N=/etc/init.d/"$NAME"
+        #echo "Usage: $N {start|stop|restart|status|force-stop}" >&2
+        echo "Usage: $N {start|stop|restart|status}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

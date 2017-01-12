@@ -1,0 +1,217 @@
+#! /bin/sh
+#
+# supervisor    built from skeleton /etc/init.d/ script.
+#
+#               skeleton by Miquel van Smoorenburg <miquels@cistron.nl>.
+#               Modified for Debian by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#               Further changes by Javier Fernandez-Sanguino <jfs@debian.org>.
+#               More changes by Konstantin Martini <isnok@tuxcode.org>.
+#
+# Version:      @(#)supervisor  0.8  25-Jun-2013  isnok@tuxcode.org
+#
+### BEGIN INIT INFO
+# Provides:          supervisor
+# Required-Start:    $remote_fs $network $named
+# Required-Stop:     $remote_fs $network $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop supervisord
+# Description:       Start/stop supervisor daemon and its configured
+#                    subprocesses.
+### END INIT INFO
+
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/supervisord         # Debian package version (presently 3.0a8-1)
+#DAEMON=/usr/local/bin/supervisord  # Python package index (pypi) version (3.0b1)
+NAME=supervisord
+DESC="a python process supervisor"
+
+CONFIGFILE=/etc/supervisord.conf            # the supervisord config file
+SUPERVISORCTL=/usr/bin/supervisorctl        # used for reload command(s)
+#SUPERVISORCTL=/usr/local/bin/supervisorctl # for use with pypi version
+
+if command -v $DAEMON >/dev/null 2>&1; then
+    echo "ERROR: Not executable: $DAEMON"
+    exit 0
+fi
+
+LOGDIR=/var/log/supervisor
+PIDFILE=/var/run/$NAME.pid
+DODTIME=5                   # Time to wait for the server to die, in seconds
+                            # If this value is set too low you might not
+                            # let some servers to die gracefully and
+                            # 'restart' will not work.
+
+# fix some args for certain commands
+DAEMON_ARGS="-c$CONFIGFILE"
+CTL_ARGS="-c$CONFIGFILE"
+STARTSTOP_ARGS="--quiet --pidfile $PIDFILE --exec $DAEMON"
+
+# Include supervisor defaults if available
+if [ -r /etc/default/supervisor ]; then
+    . /etc/default/supervisor
+fi
+
+set -e
+
+dod_sleep () {
+    if [ -n "$DODTIME" ]; then
+        sleep "$DODTIME"s
+    fi
+}
+
+running_pid () {
+    # Check if a pid's cmdline contains a string (name).
+    # This should work for all users.
+    pid="$1"
+    name="$2"
+    if [ -z "$pid" ]; then
+        return 1  # no pid given
+    fi
+    if [ ! -d /proc/"$pid" ]; then
+        return 1  # no /proc/$pid directory
+    fi
+    if cat /proc/"$pid"/cmdline | tr "\000" "\n"| grep -q "$name"; then
+        return 0
+    else
+        return 1  # $pid does not match $name
+    fi
+}
+
+running () {
+    # Check if DAEMON is running by examining $PIDFILE.
+    # If this succeeds, it sets $pid (a side effect being used).
+
+    if [ ! -f "$PIDFILE" ]; then
+        return 1  # No pidfile, probably no daemon present.
+    fi
+    # Now, obtain the pid and check it's /proc cmdline:
+    pid="$(cat $PIDFILE)"
+    if running_pid "$pid" "$DAEMON"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+normal_start () {
+      start-stop-daemon $STARTSTOP_ARGS --start \
+          --exec "$DAEMON" -- $DAEMON_ARGS $DAEMON_OPTS
+      if [ ! -f "$PIDFILE" ]; then
+          sleep 1  # grace time to create PIDFILE
+      fi
+}
+
+normal_stop () {
+    #start-stop-daemon $STARTSTOP_ARGS --stop --oknodo
+    "$SUPERVISORCTL" $CTL_ARGS shutdown
+}
+
+force_stop () {
+    # Forcefully stop a running DAEMON.
+    if running; then
+        kill -15 "$pid"
+        dod_sleep
+        # Check again, try harder if needed.
+        if running; then
+            kill -9 "$pid"
+            dod_sleep
+            if running; then
+                echo "Unable to kill running $NAME process (pid=$pid)!"
+                exit 1
+            fi
+        fi
+    fi
+    rm -f "$PIDFILE"
+    return 0
+}
+
+ctl_reload () {
+    # make supervisord reload it's config
+    if [ -x "$SUPERVISORCTL" ]; then
+        "$SUPERVISORCTL" $CTL_ARGS reload
+    else
+        return 1
+    fi
+}
+
+ctl_status () {
+    # show stati of supervised processes.
+    # do not mind if this fails.
+    "$SUPERVISORCTL" $CTL_ARGS status
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        normal_start
+        if running; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        if normal_stop; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    restart)
+        echo "Restarting $DESC..."
+        "$0" stop && "$0" start
+        ;;
+    force-stop)
+        echo -n "Forcefully stopping $DESC: "
+        force_stop
+        if running; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    reload|force-reload)
+        #
+        #    If the daemon can reload its config files on the fly
+        #    for example by sending it SIGHUP, do it here.
+        #
+        #    If the daemon responds to changes in its config file
+        #    directly anyway, make this a do-nothing entry.
+        #
+        echo "Reloading $DESC: "
+        if ctl_reload; then
+            echo "$NAME."
+        else
+            echo "ERROR."
+        fi
+        ;;
+    #force-reload)
+        #
+        #    If the "reload" option is implemented, move the "force-reload"
+        #    option to the "reload" entry above. If not, "force-reload" is
+        #    just the same as "restart" except that it does nothing if the
+        #    daemon isn't already running.
+        #    Check wether $DAEMON is running. If so, restart.
+        #echo "Not implemented."
+        #;;
+    status)
+        echo -n "$NAME is "
+        if running; then
+            echo "running:"
+            ctl_status
+        else
+            echo "not running."
+            exit 1
+        fi
+        ;;
+    *)
+        N=/etc/init.d/"$NAME"
+        echo "Usage: $N {start|stop|restart|reload|status|force-stop}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
