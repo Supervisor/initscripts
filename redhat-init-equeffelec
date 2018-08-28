@@ -38,11 +38,12 @@ fi
 
 # Path to the supervisorctl script, server binary,
 # and short-form for messages.
-supervisorctl=/usr/bin/supervisorctl
+supervisorctl=${SUPERVISORCTL-/usr/bin/supervisorctl}
 supervisord=${SUPERVISORD-/usr/bin/supervisord}
 prog=supervisord
 pidfile=${PIDFILE-/var/run/supervisord.pid}
 lockfile=${LOCKFILE-/var/lock/subsys/supervisord}
+sockfile=${SOCKFILE-/var/tmp/supervisor.sock}
 STOP_TIMEOUT=${STOP_TIMEOUT-60}
 OPTIONS="${OPTIONS--c /etc/supervisord.conf}"
 RETVAL=0
@@ -64,7 +65,7 @@ stop() {
     killproc -p ${pidfile} -d ${STOP_TIMEOUT} $supervisord
     RETVAL=$?
     echo
-    [ $RETVAL -eq 0 ] && rm -rf ${lockfile} ${pidfile}
+    [ $RETVAL -eq 0 ] && rm -rf ${lockfile} ${pidfile} ${sockfile}
 }
 
 reload() {
