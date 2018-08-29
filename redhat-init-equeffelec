@@ -8,6 +8,8 @@
 #                   for child processes to shutdown, and startup later
 #               Erwan Queffelec <erwan.queffelec@gmail.com>
 #                   make script LSB-compliant
+#               Greg Smethells <gsmethells@mgmail.com>
+#.                  Allow supervisorctl to be overridden
 #
 # chkconfig:    345 83 04
 # description: Supervisor is a client/server system that allows \
