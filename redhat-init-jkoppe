@@ -23,6 +23,9 @@
 # Treat unset variables as error
 set -o nounset
 
+PIDFILE=/var/run/supervisord.pid
+OPTIONS=
+
 # source function library
 . /etc/rc.d/init.d/functions
 
