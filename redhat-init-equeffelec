@@ -52,7 +52,7 @@ RETVAL=0
 
 start() {
     echo -n $"Starting $prog: "
-    daemon --pidfile=${pidfile} $supervisord $OPTIONS
+    daemon --pidfile=${pidfile} $supervisord $OPTIONS -j ${pidfile}
     RETVAL=$?
     echo
     if [ $RETVAL -eq 0 ]; then
