@@ -58,7 +58,7 @@ stop() {
                 echo "Supervisord exited as expected in under $total_sleep seconds"
                 break
             else
-                if [[ $sleep -eq "last" ]] ; then
+                if [[ $sleep = "last" ]] ; then
                     echo "Supervisord still working on shutting down. We've waited roughly 60 seconds, we'll let it do its thing from here"
                     return 1
                 else
