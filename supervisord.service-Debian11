@@ -1,0 +1,16 @@
+# supervisord service for systemd (Debian 11)
+# by DarkFlib (https://github.com/darkflib)
+[Unit]
+Description=Supervisor daemon
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/supervisord $OPTIONS -c /etc/supervisord.conf
+ExecStop=/usr/local/bin/supervisorctl $OPTIONS shutdown
+ExecReload=/usr/local/bin/supervisorctl $OPTIONS reload
+KillMode=process
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
